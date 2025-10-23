@@ -55,21 +55,30 @@ class Api
     /**
      * @throws ZatcaRequestException|ZatcaException
      */
-    public function reporting(string $signedInvoice, ?string $invoiceHash, string $uuid, bool $clearanceStatus = true): ReportingResponse
+    public function reporting(
+        string $signedInvoice,
+         ?string $invoiceHash,
+          string $uuid,
+           string $certificate,
+            string $secret,
+            bool $clearanceStatus = true
+           ): ReportingResponse
     {
         $rawResponse = $this->request(
             endpoint: ZatcaEndpointEnum::Reporting->value,
             payload: [
                 'invoice' => base64_encode($signedInvoice),
                 'invoiceHash' => $this->normalizeInvoiceHash($invoiceHash),
+                // 'invoiceHash' => $this->normalizeInvoiceHash($invoiceHash),
                 'uuid' => $uuid,
             ],
             headers: [
                 'Clearance-Status' => $clearanceStatus ? 1 : 0,
             ],
-            authToken: true,
+            authToken: new AuthToken($certificate,$secret),
             method: 'POST',
         );
+
         $response = new ReportingResponse($rawResponse);
 
         if ($response->errors()) {
@@ -85,7 +94,14 @@ class Api
      * @throws ZatcaException
      * @throws ZatcaRequestException
      */
-    public function clearance(string $signedInvoice, ?string $invoiceHash, string $uuid, bool $clearanceStatus = true): ClearanceResponse
+    public function clearance(
+   string $signedInvoice,
+         ?string $invoiceHash,
+          string $uuid,
+           string $certificate,
+            string $secret,
+            bool $clearanceStatus = true
+           ): ClearanceResponse
     {
         $rawResponse = $this->request(
             endpoint: ZatcaEndpointEnum::Clearance->value,
@@ -97,7 +113,7 @@ class Api
             headers: [
                 'Clearance-Status' => $clearanceStatus ? 1 : 0,
             ],
-            authToken: true,
+            authToken: new AuthToken($certificate,$secret),
             method: 'POST',
         );
         $response = new ClearanceResponse($rawResponse);
@@ -154,6 +170,7 @@ class Api
             headers: ['OTP' => $otp],
             authToken: false,
         );
+
         $response = new ComplianceCertificateResponse($rawResponse);
 
         if ($response->errors()) {

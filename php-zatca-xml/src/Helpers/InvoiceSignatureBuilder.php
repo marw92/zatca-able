@@ -207,6 +207,8 @@ class InvoiceSignatureBuilder
             '                                </xades:SignedSignatureProperties>'.PHP_EOL.
             '                            </xades:SignedProperties>';
 
+            // dd($this->cert->getCurr());
+
         $signedPropertiesXml = str_replace(
             [
                 'SIGNING_TIME_PLACEHOLDER',

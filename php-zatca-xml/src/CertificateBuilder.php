@@ -387,7 +387,7 @@ EOL;
     private function sanitize(string $input): string
     {
         $trimmed = trim($input);
-        $sanitized = preg_replace('/[^a-zA-Z0-9\s\-_]/', '', $trimmed);
+        $sanitized = preg_replace('/[^a-zA-Z0-9\s\-_.]/', '', $trimmed);
         if ($sanitized === null) {
             throw new CertificateBuilderException("Sanitization failed for: $input");
         }

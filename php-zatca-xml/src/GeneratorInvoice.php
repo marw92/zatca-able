@@ -44,7 +44,6 @@ class GeneratorInvoice
 
         // Serialize the invoice object to XML.
         $rawXml = $xmlService->write('Invoice', [$invoice]);
-
         // Format the XML using the dedicated formatting function.
         $instance->generatedXml = self::formatXml($rawXml);
 
@@ -85,7 +84,6 @@ class GeneratorInvoice
     public function saveXMLFile(string $filename = 'unsigned_invoice.xml', ?string $outputDir = 'output'): self
     {
         (new Storage($outputDir))->put($filename, $this->generatedXml);
-
         return $this;
     }
 

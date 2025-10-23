@@ -62,6 +62,11 @@ class InvoiceMapper
     private AdditionalDocumentMapper $additionalDocumentMapper;
 
     /**
+     * @var AllowanceChargeMapper Mapper for converting allowance and charge data.
+     */
+    private AllowanceChargeMapper $allowanceChargeMapper;
+
+    /**
      * InvoiceMapper constructor.
      *
      * Initializes all dependent mappers.
@@ -73,6 +78,8 @@ class InvoiceMapper
         $this->invoiceLineMapper = new InvoiceLineMapper;
         $this->paymentMeansMapper = new PaymentMeansMapper;
         $this->additionalDocumentMapper = new AdditionalDocumentMapper;
+        $this->allowanceChargeMapper = new AllowanceChargeMapper;
+
     }
 
     /**
@@ -101,6 +108,9 @@ class InvoiceMapper
         // Optionally, Validate the required invoice fields
         $validator = new InvoiceValidator;
         $validator->validate($data);
+        // dd($data['allowanceCharges']);
+
+       
 
         // // Optionally, validate the invoice amounts and lines.
         // $validatorAmount = new InvoiceAmountValidator();
@@ -134,7 +144,7 @@ class InvoiceMapper
             )
             ->setDelivery($this->mapDelivery($data['delivery'] ?? []))
             ->setPaymentMeans($this->paymentMeansMapper->map($data['paymentMeans'] ?? []))
-            ->setAllowanceCharges($this->mapAllowanceCharge($data ?? []))
+            ->setAllowanceCharges($this->allowanceChargeMapper->map($data['allowanceCharges'] ?? []))
             ->setTaxTotal($this->mapTaxTotal($data['taxTotal'] ?? []))
             ->setLegalMonetaryTotal($this->mapLegalMonetaryTotal($data['legalMonetaryTotal'] ?? []))
             ->setInvoiceLines($this->invoiceLineMapper->mapInvoiceLines($data['invoiceLines'] ?? []))
@@ -224,9 +234,10 @@ class InvoiceMapper
     private function mapBillingReferences(array $data): array
     {
         $billingReferences = [];
-        foreach ($data as $billingData) {
+        // dd($data);
+        foreach ($data as $id) {
             $billingReferences[] = (new BillingReference)
-                ->setId($billingData['id'] ?? '');
+            ->setId($id ?? '');
         }
 
         return $billingReferences;
@@ -242,7 +253,7 @@ class InvoiceMapper
     {
         $allowanceCharges = [];
         // Check if allowanceCharges is an array.
-        if (! isset($data['allowanceCharges']) || ! is_array($data['allowanceCharges'])) {
+        if (!isset($data['allowanceCharges']) || !is_array($data['allowanceCharges'])) {
             return $allowanceCharges;
         }
         // Iterate over each allowance charge in the data.

@@ -54,6 +54,7 @@ class InvoiceSigner
             $certificate->getPrivateKey()->sign($invoiceHashBinary)
         );
 
+        // dd($certificate->getCurrentCert());
         // Prepare UBL Extension with certificate, hash, and signature
         $ublExtension = (new InvoiceSignatureBuilder)
             ->setCertificate($certificate)
@@ -61,10 +62,13 @@ class InvoiceSigner
             ->setSignatureValue($instance->digitalSignature)
             ->buildSignatureXml();
 
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Generate QR Code
         $instance->qrCode = QRCodeGenerator::createFromTags(
             $xmlDom->generateQrTagsArray($certificate, $instance->hash, $instance->digitalSignature)
         )->encodeBase64();
+
+        // QR CODE IS BEING GENERATED SUCCESFULLY, NOT SURE ABOUT IT'S ACCURACY
 
         // Insert UBL Extension and QR Code into the XML
         $signedInvoice = str_replace(
@@ -79,9 +83,15 @@ class InvoiceSigner
             $xmlDom->toXml()
         );
 
+        //THE SIGNED INVOICE CONTAINS THE QR CODE
+
+        // dd($signedInvoice);
+
         // Remove extra blank lines and save
         $instance->signedInvoice = preg_replace('/^[ \t]*[\r\n]+/m', '', $signedInvoice);
 
+        //INSTANTCE CONTAINS THE QR CODE
+        // dd($instance);
         return $instance;
     }
 

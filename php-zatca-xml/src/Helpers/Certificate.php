@@ -46,8 +46,9 @@ class Certificate
     {
         $this->secretKey = $secretKey;
         $this->rawCertificate = $rawCert;
+        //it expects the certificate to be base64 encoded only once but the compliance CSID certificate is encoded twice
         $this->x509 = new X509;
-        $this->x509->loadX509($rawCert);
+        $this->x509->loadX509(base64_decode($rawCert));
         $this->privateKey = EC::loadPrivateKey($privateKeyStr);
     }
 

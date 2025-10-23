@@ -42,7 +42,7 @@ trait RequestBuilder
     {
         $cleanCert = base64_encode(trim($certificate));
 
-        return base64_encode($cleanCert.':'.trim($secret));
+        return base64_encode($cleanCert . ':' . trim($secret));
     }
 
     public function setCredentials(?string $certificate, ?string $secret): void
@@ -79,15 +79,15 @@ trait RequestBuilder
         $headers = array_merge([
             'Accept' => 'application/json',
             'Content-Type' => 'application/json',
-            'Accept-Language' => 'en',
+            'Accept-Language' => 'EN',
             'Accept-Version' => 'V2',
         ], $headers);
 
         if ($authToken) {
             $token = $authToken instanceof AuthToken ? $authToken : $this->authToken;
 
-            if (! $token instanceof AuthToken) {
-                throw new ZatcaRequestException('The certificate is not passed. Unable to set the Authorization.', [
+            if (!$token instanceof AuthToken) {
+                throw new ZatcaRequestException('No certificate was provided. Unable to set the Authorization.', [
                     'method' => __METHOD__,
                     'endpoint' => $endpoint,
                 ]);
@@ -96,21 +96,35 @@ trait RequestBuilder
             $headers['Authorization'] = $token->toBasic();
         }
 
-        $uri = $this->baseUrl().$endpoint;
+        $uri = $this->baseUrl() . $endpoint;
+                $certificatePath = base_path('storage/app/private/_.zatca.gov.sa.crt');
+
         $options = [
             'headers' => $headers,
             'json' => $payload,
+            'verify' => $certificatePath,
         ];
-
         try {
             return $this->httpClient->request('POST', $uri, $options);
         } catch (ClientExceptionInterface $e) {
-            throw new ZatcaRequestException($e->getMessage(), [
-                'uri' => $uri,
-                'method' => $method,
-                'message' => $e->getMessage(),
-                'content' => $e->getResponse()->getBody()->getContents(),
-            ], $e->getCode(), $e);
+            // If it isn't an http error $e->getResponse doesn't exist
+            $content = null;
+
+            if (method_exists($e, 'getResponse') && $e->getResponse()) {
+                $content = (string) $e->getResponse()->getBody()->getContents();
+            }
+
+            throw new ZatcaRequestException(
+                $e->getMessage(),
+                [
+                    'uri' => $uri,
+                    'method' => $method,
+                    'message' => $e->getMessage(),
+                    'content' => $content,
+                ],
+                $e->getCode(),
+                $e
+            );
         }
     }
 }

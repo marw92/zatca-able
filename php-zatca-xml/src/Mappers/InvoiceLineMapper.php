@@ -68,7 +68,9 @@ class InvoiceLineMapper
             $price = $this->priceMapper->map($line['price'] ?? []);
             // Map allowanceCharges data using AllowanceChargeMapper.
             // dd($line['allowanceCharges']);
+            // dump($line['allowanceCharges']);
             $allowanceCharges = $this->allowanceChargeMapper->map($line['allowanceCharges'] ?? []);
+            // dd($allowanceCharges);
             // dd($allowanceCharges);
             // Map line tax total data.
             $taxTotal = $this->mapLineTaxTotal($line['taxTotal'] ?? []);

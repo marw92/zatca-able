@@ -25,12 +25,12 @@ class BillingReference implements XmlSerializable
      */
     public function setId(string $id): self
     {
+       
         if (trim($id) === '') {
-            throw new InvalidArgumentException('ID cannot be empty.');
+            throw new InvalidArgumentException('Billing reference ID cannot be empty.');
         }
-
+        
         $this->id = $id;
-
         return $this;
     }
 
